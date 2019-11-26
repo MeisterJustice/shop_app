@@ -3,6 +3,7 @@ import '../widgets/app_drawer.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/cart.dart';
+import '../providers/products_provider.dart';
 import '../screens/cart_screen.dart';
 
 import '../widgets/products_grid.dart';
@@ -20,7 +21,34 @@ class ProductOverviewScreen extends StatefulWidget {
 
 class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
   var _showOnlyFavorites = false;
+  var _isInit = true;
+  var _isLoading = false;
 
+  Future<void> _refreshProducts(BuildContext context) async {
+    await Provider.of<ProductsProvider>(context).fetchAndSetProduts();
+  }
+
+  @override
+  void initState() {
+    // Provider.of<ProductsProvider>(context).fetchAndSetProduts();
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<ProductsProvider>(context).fetchAndSetProduts().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,23 +80,33 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
               ),
             ],
           ),
-          Consumer<Cart>(builder: (ctx, cartData, ch) => Badge(
-            child: ch,
-            value: cartData.itemCount.toString(),
-          ),
-          child: IconButton(
+          Consumer<Cart>(
+            builder: (ctx, cartData, ch) => Badge(
+              child: ch,
+              value: cartData.itemCount.toString(),
+            ),
+            child: IconButton(
               icon: Icon(
                 Icons.shopping_cart,
               ),
-              onPressed: (){
-                Navigator.of(context).pushNamed(CartScreen.routeName,);
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  CartScreen.routeName,
+                );
               },
             ),
           ),
         ],
       ),
       drawer: AppDrawer(),
-      body: ProductsGrid(_showOnlyFavorites),
+      body: RefreshIndicator(
+        onRefresh: () => _refreshProducts(context),
+        child: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : ProductsGrid(_showOnlyFavorites),
+      ),
     );
   }
 }

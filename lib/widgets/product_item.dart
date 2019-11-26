@@ -36,6 +36,7 @@ class ProductItem extends StatelessWidget {
           title: Text(
             product.title,
             textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 10),
           ),
           leading: Consumer<Product>(
             builder: (ctx, product, child) => IconButton(
