@@ -50,7 +50,7 @@ class CartItem extends StatelessWidget {
                 },
               ),
             ],
-          ),
+          ), 
         );
       },
       onDismissed: (direction) {
