@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/foundation.dart';
 
 class CartItem {
@@ -32,7 +34,7 @@ class Cart with ChangeNotifier {
     return total;
   }
 
-  void addItem(String productId, double price, String title) {
+  Future<void> addItem(String productId, double price, String title, [bool filterByUser = false]) async {
     if (_items.containsKey(productId)) {
       _items.update(
           productId,
